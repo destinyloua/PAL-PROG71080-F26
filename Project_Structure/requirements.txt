@@ -1,0 +1,7 @@
+# LIST THE LIBRARIES/DEPENDENCIES YOU NEED HERE 
+pandas 
+numpy 
+
+# WHEN SOMEONE ELSE USES YOUR PROJECT: 
+# THEY run: pip install -r requirements.txt
+# This installs everything you listed above so they don't have to do it manually 
