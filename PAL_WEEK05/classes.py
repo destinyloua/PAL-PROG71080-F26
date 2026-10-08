@@ -73,6 +73,6 @@ comp1.show_employees()
 comp1.fire(emp3)
 comp1.show_employees()
 
-
+# TODO: See if you can edit someone's wage
 
 
