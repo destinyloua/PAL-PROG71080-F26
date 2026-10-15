@@ -1,0 +1,186 @@
+# Helper functions 
+# You may need more than one file for these
+
+import pandas as pd     # External library (include in requirements.txt)
+import csv              # Built-in Python (do not include in requirements.txt)
+import models as m      # Project file (do not include in requirements.txt)
+
+# BEST: much faster with pandas 
+def get_data(filename): 
+    """Uses pandas to read data from csv file and returns a dataframe."""
+    df = pd.read_csv(filename)
+    return df   # df means dataframe    
+
+def get_residents_list(data): 
+    """Returns a list of Resident objects from a dataframe."""
+    residents_list = []
+
+    # In a datafame, a ROW is like an index (i) -- call it whatever makes sense to you 
+    for row in range(len(data)):
+        resident = m.Resident(
+            data["name"][row],              # You could also do data.iloc[i]["name"]...etc
+            data["job"][row],               # Just choose whatever syntax you will remember 
+            data["is_friendly"][row],       # bc they do the same thing here 
+            data["cash"][row]
+        )
+        residents_list.append(resident)  
+    return residents_list    
+
+# ALTERNATIVE: no pandas, more code
+def get_data2(filename): 
+    """Uses Python csv module to read data from a csv file and returns a list of dictionaries."""
+    with open(filename, "r", newline = "") as file: 
+        data = list(csv.reader(file))
+    return data   
+
+def get_residents_list2(data): 
+    """Returns a list of Resident objects from csv rows."""
+    residents_list = []
+
+    # FYI: when you use csv.reader, it treats EVERYTHING like a string - you'll need to typecast 
+    for row in data[1:]:        # IMPORTANT: you have to skip row 0 because its header names
+        resident = m.Resident(
+            row[0],              
+            row[1],               
+            row[2] == True,     # CAST to bool (research if you want to know why or just remember)     
+            int(row[3])         # CAST to int 
+        )
+        residents_list.append(resident)  
+    return residents_list 
+
+# IF YOU MADE A LIST OF RESIDENTS ^^ 
+# The rest of the solution is the same as version 1 (See W6_Solution_1 folder)
+# The same functions are copy and pasted below: 
+
+def display_residents(resident_list): 
+    """Displays basic information for all residents in a list."""
+    for resident in resident_list: 
+        resident.print_info()
+
+# TODO: Create a function that returns the character with the most cash. 
+def find_richest(resident_list): 
+    """Finds and returns the resident with the most cash from a list of residents."""
+    richest = resident_list[0]
+    for resident in resident_list:  
+        if resident.get_cash() > richest.get_cash():    # cash is a private attribute so use the getter function
+            richest = resident 
+
+    return richest 
+
+# TODO: Create a function that returns restauraunt owners. 
+def find_restaurant_owners(resident_list): 
+    """Returns a list of residents that own restarunts."""
+
+    # Option 1: for loop and if 
+    # restaurant_owners = [] 
+    # for resident in resident_list: 
+    #     if resident.job == "Restaurant Owner": 
+    #         restaurant_owners.append(resident)                        # This appends the whole resident object
+
+    # Option 2: with map() and filter() 
+    restaurant_owners = list(                                           # I want a list...        
+        map(
+            lambda resident: resident,                                  # of Resident objects...
+            filter(
+                lambda resident: resident.job == "Restaurant Owner",    # where this is true...
+                resident_list                                           # from this list.
+            )
+        )
+    )
+    return restaurant_owners
+
+# TODO: Create a function that returns only unfriendly characters. 
+def find_unfriendlies(resident_list): 
+    """Returns a list of residents who are unfriendly."""
+    # Using map() and filter () -- but you can also use for loop and if 
+    unfriendlies = list(
+        map(
+            lambda resident: resident, 
+            filter(
+                lambda resident: resident.friendly == False, 
+                resident_list
+            )
+        )
+    )
+    return unfriendlies
+
+# RANKING 
+def rank_cash_asc(resident_list): 
+    """Returns a list of residents ranked lowest to highest cash (ascending order)."""
+    temp_list = resident_list.copy()    # COPY THE LIST so we don't ruin the original (better safe than sorry)
+    ranked_list = [] 
+
+    # Keep going UNTIL nothing left in temp list
+    while len(temp_list) != 0: 
+        poorest = temp_list[0]
+
+        # You could (should) turn this part into its own function, but I will leave it like this so you 
+        # can follow the logic (see function below for alternative)
+        for resident in temp_list: 
+            if resident.get_cash() < poorest.get_cash(): 
+                poorest = resident
+
+        # Add the poorest to the ranked list 
+        ranked_list.append(poorest)
+
+        # Get rid of the poorest for the next iteration 
+        temp_list.remove(poorest)
+
+    # Only return the ranked list (poorest to richest)
+    return ranked_list 
+
+# BONUS: let's try DESCENDING (highest to lowest) cash 
+def rank_cash_desc(resident_list): 
+    """Returns a list of residents ranked highest to lowest cash (descending order)."""
+    temp_list = resident_list.copy() 
+    ranked_list = [] 
+
+    while len(temp_list) != 0:
+        richest = find_richest(temp_list)       # LOOK!!! You already made a function that finds richest!!!
+        ranked_list.append(richest)             # Works just like the function for asc
+        temp_list.remove(richest)
+
+    return ranked_list
+
+# COUNTING 
+# Using just lists 
+def get_job_counts(resident_list): 
+    """Returns a 2D list of jobs with the number of residents with each job."""
+    jobs = [] 
+    job_counts = [] 
+
+    # Extract all the jobs present in the list 
+    for resident in resident_list: 
+        job = resident.job
+        
+        # Add it to your list of jobs 
+        if job not in jobs: 
+            jobs.append(job)
+
+    # Now go through all jobs in your list of jobs 
+    for job in jobs: 
+        count = 0   # Start counting at 0 
+
+        # Go through all residents and if the job matches, increment the count by 1
+        for resident in resident_list: 
+            if resident.job == job: 
+                count += 1
+
+        # Now add the "mini list" (job AND count) to the "big list" 
+        job_counts.append([job, count])
+
+    # This returns a list of smaller lists ([job, count])
+    return job_counts
+
+# Faster - with dictionary (use with caution if your prof didn't teach this yet.)
+def get_job_counts_dict(resident_list): 
+    """Returns a dictionary of jobs and number of residents with each job."""
+    job_counts = {}
+    for resident in resident_list: 
+        job = resident.job
+        if job not in job_counts: 
+            job_counts[job] = 1
+        else: 
+            job_counts[job] += 1
+
+    return job_counts
