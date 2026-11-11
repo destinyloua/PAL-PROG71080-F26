@@ -10,7 +10,15 @@ class TestFunctions(unittest.TestCase):
 
     def test_calculate_total(self): 
         """Checks that the total of 3 items is calculated correctly."""
-        self.assertEqual(f.calculate_total(10, 20, 30), 60)
+        # Arrange 
+        a = 10
+        b = 20 
+        c = 30 
+        expected = 60
+        # Act 
+        actual = f.calculate_total(a, b, c) 
+        # Assert 
+        self.assertEqual(actual, expected)
 
 # TODO: Create more tests here.     
 
