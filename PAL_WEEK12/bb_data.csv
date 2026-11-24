@@ -1,0 +1,13 @@
+name,job,is_friendly,cash
+SpongeBob,Fry Cook,True,1500
+Patrick,Unemployed,True,10
+Squidward,Cashier,False,200
+Sandy,Scientist,True,2150
+Mr. Krabs,Restaurant Owner,False,10000
+Plankton,Restaurant Owner,False,50
+Squilliam,Musician,False,5000
+Larry,,True,2500
+Gary,Unemployed,True,8
+Pearl,Cashier,False,900
+Bubble Bass,Food Critic,False,6000
+King Neptune,,False,500000
